@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPeer } from "./peer";
 import io from "socket.io-client";
 import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui/material";
+import { Mic, MicOff, Videocam, VideocamOff, ScreenShare, CallEnd } from "@mui/icons-material";
 
 const socket = io("https://videochat-yq4y.onrender.com");
 
@@ -9,13 +10,11 @@ const VideoChat = () => {
   const [peerId, setPeerId] = useState("");
   const [remotePeerId, setRemotePeerId] = useState("");
   const [peer, setPeer] = useState(null);
-  const [call, setCall] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [peers, setPeers] = useState({});
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
 
   const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
   const localStreamRef = useRef(null);
 
   useEffect(() => {
@@ -34,38 +33,33 @@ const VideoChat = () => {
         localVideoRef.current.srcObject = stream;
 
         incomingCall.on("stream", (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
+          setPeers((prevPeers) => ({ ...prevPeers, [incomingCall.peer]: remoteStream }));
         });
-
-        setCall(incomingCall);
-        setIsConnected(true);
       });
     });
 
-    socket.on("user-connected", (peerId) => setIsConnected(true));
-    socket.on("user-disconnected", () => {
-      setIsConnected(false);
-      endCall();
+    socket.on("user-connected", (peerId) => {
+      setPeers((prevPeers) => ({ ...prevPeers, [peerId]: null }));
     });
-
-    return () => {
-      socket.off("user-connected");
-      socket.off("user-disconnected");
-    };
+    
+    socket.on("user-disconnected", (peerId) => {
+      setPeers((prevPeers) => {
+        const updatedPeers = { ...prevPeers };
+        delete updatedPeers[peerId];
+        return updatedPeers;
+      });
+    });
   }, []);
 
   const callPeer = () => {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       localStreamRef.current = stream;
       localVideoRef.current.srcObject = stream;
-
+      
       const outgoingCall = peer.call(remotePeerId, stream);
       outgoingCall.on("stream", (remoteStream) => {
-        remoteVideoRef.current.srcObject = remoteStream;
+        setPeers((prevPeers) => ({ ...prevPeers, [remotePeerId]: remoteStream }));
       });
-
-      setCall(outgoingCall);
-      setIsConnected(true);
     });
   };
 
@@ -83,68 +77,58 @@ const VideoChat = () => {
     }
   };
 
-  const endCall = () => {
-    if (call) {
-      call.close();
-      setCall(null);
-      setIsConnected(false);
-      localVideoRef.current.srcObject = null;
-      remoteVideoRef.current.srcObject = null;
-    }
-  };
-
   return (
-    <Container maxWidth="md" sx={{ textAlign: "center", mt: 4 }}>
-      <Paper elevation={3} sx={{ padding: 3 }}>
+    <Container maxWidth="lg" sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <Paper elevation={3} sx={{ padding: 4, textAlign: "center", width: "100%" }}>
         <Typography variant="h4" gutterBottom>
           Video Chat
         </Typography>
-        <Typography variant="h6" color={isConnected ? "green" : "red"}>
-          Status: {isConnected ? "Connected ✅" : "Waiting for Peer..."}
+        <Typography variant="h6" color="green">
+          Your Peer ID: <strong>{peerId}</strong>
         </Typography>
 
-        <Box mt={2}>
-          <Typography>Your Peer ID: <strong>{peerId}</strong></Typography>
-          <TextField
-            label="Enter Peer ID to Call"
-            variant="outlined"
-            value={remotePeerId}
-            onChange={(e) => setRemotePeerId(e.target.value)}
-            sx={{ mt: 2, width: "100%" }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={callPeer}
-            disabled={!remotePeerId || isConnected}
-            sx={{ mt: 2 }}
-          >
-            Call
-          </Button>
-        </Box>
+        <TextField
+          label="Enter Peer ID to Connect"
+          variant="outlined"
+          value={remotePeerId}
+          onChange={(e) => setRemotePeerId(e.target.value)}
+          sx={{ mt: 2, width: "100%" }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={callPeer}
+          disabled={!remotePeerId}
+          sx={{ mt: 2 }}
+        >
+          Call Peer
+        </Button>
 
         <Grid container spacing={2} justifyContent="center" mt={3}>
           <Grid item>
             <video ref={localVideoRef} autoPlay playsInline muted width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
           </Grid>
-          <Grid item>
-            <video ref={remoteVideoRef} autoPlay playsInline width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
-          </Grid>
+          {Object.keys(peers).map((peerKey) => (
+            <Grid item key={peerKey}>
+              <video autoPlay playsInline width="300" height="200" style={{ borderRadius: 10, border: peers[peerKey] ? "2px solid lime" : "2px solid gray" }} />
+            </Grid>
+          ))}
         </Grid>
 
-        {isConnected && (
-          <Box mt={2}>
-            <Button variant="contained" color={isMuted ? "secondary" : "success"} onClick={toggleMute} sx={{ mr: 2 }}>
-              {isMuted ? "Unmute" : "Mute"}
-            </Button>
-            <Button variant="contained" color={isVideoOff ? "secondary" : "success"} onClick={toggleVideo} sx={{ mr: 2 }}>
-              {isVideoOff ? "Turn Video On" : "Turn Video Off"}
-            </Button>
-            <Button variant="contained" color="error" onClick={endCall}>
-              End Call
-            </Button>
-          </Box>
-        )}
+        <Box mt={2}>
+          <Button variant="contained" color={isMuted ? "secondary" : "success"} onClick={toggleMute} sx={{ mr: 2 }}>
+            {isMuted ? <MicOff /> : <Mic />} 
+          </Button>
+          <Button variant="contained" color={isVideoOff ? "secondary" : "success"} onClick={toggleVideo} sx={{ mr: 2 }}>
+            {isVideoOff ? <VideocamOff /> : <Videocam />} 
+          </Button>
+          <Button variant="contained" color="warning" sx={{ mr: 2 }}>
+            <ScreenShare />
+          </Button>
+          <Button variant="contained" color="error">
+            <CallEnd />
+          </Button>
+        </Box>
       </Paper>
     </Container>
   );
