@@ -16,7 +16,7 @@ app.use(cors({ origin: "*" }));
 // Initialize Socket.io with proper CORS settings
 const io = new Server(server, {
   cors: {
-    origin: "*", // Change this to your frontend URL for security (e.g., "https://your-frontend.vercel.app")
+    origin: "*", // Change this to your frontend URL for security
     methods: ["GET", "POST"],
   },
 });
@@ -48,8 +48,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// PeerJS Server
-const peerServer = ExpressPeerServer(server, { debug: true });
+// PeerJS Server with explicit path
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+  path: "/peerjs",
+});
 app.use("/peerjs", peerServer);
 
 // Start server with dynamic port

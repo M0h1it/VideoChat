@@ -3,7 +3,10 @@ import { createPeer } from "./peer";
 import io from "socket.io-client";
 import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui/material";
 
-const socket = io("https://videochat-yq4y.onrender.com");
+// Use WebSocket for socket connection
+const socket = io("https://videochat-yq4y.onrender.com", {
+  transports: ["websocket"],
+});
 
 const VideoChat = () => {
   const [peerId, setPeerId] = useState("");
@@ -42,8 +45,14 @@ const VideoChat = () => {
         setIsConnected(true);
       });
     });
-    socket.on("user-connected", (peerId) => setIsConnected(true));
+
+    socket.on("user-connected", (peerId) => {
+      console.log("User connected with Peer ID:", peerId);
+      setIsConnected(true);
+    });
+
     socket.on("user-disconnected", () => {
+      console.log("User disconnected.");
       setIsConnected(false);
       endCall();
     });
@@ -59,6 +68,7 @@ const VideoChat = () => {
       localStreamRef.current = stream;
       localVideoRef.current.srcObject = stream;
       const outgoingCall = peer.call(remotePeerId, stream);
+
       outgoingCall.on("stream", (remoteStream) => {
         remoteVideoRef.current.srcObject = remoteStream;
       });
@@ -70,14 +80,14 @@ const VideoChat = () => {
 
   const toggleMute = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks()[0].enabled = isMuted;
+      localStreamRef.current.getAudioTracks()[0].enabled = !isMuted;
       setIsMuted(!isMuted);
     }
   };
 
   const toggleVideo = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks()[0].enabled = isVideoOff;
+      localStreamRef.current.getVideoTracks()[0].enabled = !isVideoOff;
       setIsVideoOff(!isVideoOff);
     }
   };
@@ -87,49 +97,51 @@ const VideoChat = () => {
       call.close();
       setCall(null);
       setIsConnected(false);
-      localVideoRef.current.srcObject = null;
-      remoteVideoRef.current.srcObject = null;
+      if (localVideoRef.current) localVideoRef.current.srcObject = null;
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     }
   };
 
   return (
     <Container maxWidth="md" sx={{ textAlign: "center", mt: 4 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom>
           Video Chat
         </Typography>
         <Typography variant="h6" color={isConnected ? "green" : "red"}>
           Status: {isConnected ? "Connected ✅" : "Waiting for Peer..."}
-          </Typography>
+        </Typography>
 
-<Box mt={2}>
-  <Typography>Your Peer ID: <strong>{peerId}</strong></Typography>
-  <TextField
-    label="Enter Peer ID to Call"
-    variant="outlined"
-    value={remotePeerId}
-    onChange={(e) => setRemotePeerId(e.target.value)}
-    sx={{ mt: 2, width: "100%" }}
-  />
-  <Button
-    variant="contained"
-    color="primary"
-    onClick={callPeer}
-    disabled={!remotePeerId || isConnected}
-    sx={{ mt: 2 }}
-  >
-    Call
-  </Button>
-</Box>
-<Grid container spacing={2} justifyContent="center" mt={3}>
+        <Box mt={2}>
+          <Typography>Your Peer ID: <strong>{peerId}</strong></Typography>
+          <TextField
+            label="Enter Peer ID to Call"
+            variant="outlined"
+            value={remotePeerId}
+            onChange={(e) => setRemotePeerId(e.target.value)}
+            sx={{ mt: 2, width: "100%" }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={callPeer}
+            disabled={!remotePeerId || isConnected}
+            sx={{ mt: 2 }}
+          >
+            Call
+          </Button>
+        </Box>
+
+        <Grid container spacing={2} justifyContent="center" mt={3}>
           <Grid item>
             <video ref={localVideoRef} autoPlay playsInline muted width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
           </Grid>
           <Grid item>
             <video ref={remoteVideoRef} autoPlay playsInline width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
           </Grid>
-          </Grid>
-          {isConnected && (
+        </Grid>
+
+        {isConnected && (
           <Box mt={2}>
             <Button variant="contained" color={isMuted ? "secondary" : "success"} onClick={toggleMute} sx={{ mr: 2 }}>
               {isMuted ? "Unmute" : "Mute"}
@@ -142,7 +154,7 @@ const VideoChat = () => {
             </Button>
           </Box>
         )}
-         </Paper>
+      </Paper>
     </Container>
   );
 };
