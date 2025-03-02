@@ -7,10 +7,16 @@ const { ExpressPeerServer } = require("peer");
 const app = express();
 const server = http.createServer(app);
 
-// Enable CORS
+// Use dynamic port for deployment
+const PORT = process.env.PORT || 5000;
+
+// Enable CORS (Allow frontend domain)
+app.use(cors({ origin: "*" }));
+
+// Initialize Socket.io with proper CORS settings
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "*", // Change this to your frontend URL for security (e.g., "https://your-frontend.vercel.app")
     methods: ["GET", "POST"],
   },
 });
@@ -46,4 +52,5 @@ io.on("connection", (socket) => {
 const peerServer = ExpressPeerServer(server, { debug: true });
 app.use("/peerjs", peerServer);
 
-server.listen(5000, () => console.log("✅ Server running on port 5000"));
+// Start server with dynamic port
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
