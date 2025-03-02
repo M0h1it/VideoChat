@@ -5,7 +5,9 @@ import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui
 import { MicOff, VideocamOff, CallEnd, Mic, Videocam } from "@mui/icons-material";
 import Swal from "sweetalert2";
 
-const socket = io("https://videochat-yq4y.onrender.com", {
+const socket = io( process.env.NODE_ENV === "production"
+  ? "https://videochat-yq4y.onrender.com"
+  : "http://localhost:5000", {
   transports: ["websocket", "polling"],
 });
 
@@ -47,7 +49,12 @@ const VideoChat = () => {
             incomingCall.answer(stream);
 
             incomingCall.on("stream", (remoteStream) => {
-              remoteVideoRef.current.srcObject = remoteStream;
+              if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = remoteStream;
+                console.log("Local Stream: ", localStreamRef.current); // Debug log
+  console.log("Remote Stream: ", remoteVideoRef.current?.srcObject);
+                remoteVideoRef.current.play();
+              }
             });
 
             setCall(incomingCall);
@@ -84,7 +91,12 @@ const VideoChat = () => {
 
           const outgoingCall = peer.call(remotePeerId, stream);
           outgoingCall.on("stream", (remoteStream) => {
-            remoteVideoRef.current.srcObject = remoteStream;
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = remoteStream;
+              console.log("Local Stream: ", localStreamRef.current); // Debug log
+  console.log("Remote Stream: ", remoteVideoRef.current?.srcObject);
+              remoteVideoRef.current.play();
+            }
           });
 
           setCall(outgoingCall);
@@ -116,7 +128,7 @@ const VideoChat = () => {
 
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach(track => track.stop()); // Stop all local tracks
-        localStreamRef.current = null;
+        // localStreamRef.current = null;
       }
       
       if (localVideoRef.current) {
