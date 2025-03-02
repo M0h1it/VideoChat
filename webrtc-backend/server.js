@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Use dynamic port for deployment
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // Enable CORS (Allow frontend domain)
 app.use(cors({ origin: "*" }));
