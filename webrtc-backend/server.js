@@ -24,19 +24,22 @@ let onlineUsers = {};
 // Handle new user connections
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
-  onlineUsers[socket.id] = { id: socket.id };
 
   socket.on("user-joined", (peerId) => {
-    onlineUsers[socket.id].peerId = peerId;
+    onlineUsers[socket.id] = { id: socket.id, peerId };
     io.emit("online-users", Object.values(onlineUsers));
     io.emit("user-connected", peerId);
   });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    const peerId = onlineUsers[socket.id]?.peerId; // Get Peer ID before deletion
     delete onlineUsers[socket.id];
     io.emit("online-users", Object.values(onlineUsers));
-    io.emit("user-disconnected", socket.id);
+
+    if (peerId) {
+      io.emit("user-disconnected", peerId); // Emit Peer ID instead of socket ID
+    }
   });
 });
 
