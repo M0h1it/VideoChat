@@ -11,15 +11,16 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS (Allow frontend domain)
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "https://video-chat-theta-self.vercel.app" }));
 
 // Initialize Socket.io with proper CORS settings
-const io = new Server(server, {
+const io = require("socket.io")(server, {
   cors: {
-    origin: "*", // Change this to your frontend URL for security (e.g., "https://your-frontend.vercel.app")
+    origin: "https://video-chat-theta-self.vercel.app",
     methods: ["GET", "POST"],
   },
 });
+
 
 // Store online users
 let onlineUsers = {};

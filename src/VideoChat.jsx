@@ -5,7 +5,9 @@ import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui
 import { MicOff, VideocamOff, CallEnd, Mic, Videocam } from "@mui/icons-material";
 import Swal from "sweetalert2";
 
-const socket = io("https://videochat-yq4y.onrender.com");
+const socket = io("https://videochat-yq4y.onrender.com", {
+  transports: ["websocket", "polling"],
+});
 
 const VideoChat = () => {
   const [peerId, setPeerId] = useState("");
