@@ -33,7 +33,8 @@ const VideoChat = () => {
         localVideoRef.current.srcObject = stream;
 
         incomingCall.on("stream", (remoteStream) => {
-          setPeers((prevPeers) => ({ ...prevPeers, [incomingCall.peer]: remoteStream }));
+          setPeers((prevPeers) => ({ 
+            ...prevPeers, [incomingCall.peer]: remoteStream }));
         });
       });
     });
@@ -63,6 +64,18 @@ const VideoChat = () => {
     });
   };
 
+  // Ensure video elements update correctly when peers object changes
+  
+  useEffect(() => {
+    Object.keys(peers).forEach((peerKey) => {
+      const videoElement = document.getElementById(`video-${peerKey}`);
+      if (videoElement && peers[peerKey]) {
+        videoElement.srcObject = peers[peerKey];
+      }
+    });
+  }, [peers]);
+  
+
   const toggleMute = () => {
     if (localStreamRef.current) {
       localStreamRef.current.getAudioTracks()[0].enabled = isMuted;
@@ -78,8 +91,8 @@ const VideoChat = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <Paper elevation={3} sx={{ padding: 4, textAlign: "center", width: "100%" }}>
+    <Container maxWidth="lg" sx={{ display: "flex",flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", overflowY: "auto"}}>
+      <Paper elevation={3} sx={{ padding: 4, textAlign: "center", width: "100%",overflowY: "auto", maxHeight: "90vh" }}>
         <Typography variant="h4" gutterBottom>
           Video Chat
         </Typography>
@@ -110,8 +123,15 @@ const VideoChat = () => {
           </Grid>
           {Object.keys(peers).map((peerKey) => (
             <Grid item key={peerKey}>
-              <video autoPlay playsInline width="300" height="200" style={{ borderRadius: 10, border: peers[peerKey] ? "2px solid lime" : "2px solid gray" }} />
-            </Grid>
+            <video
+              ref={(ref) => ref && (ref.srcObject = peers[peerKey])}
+              autoPlay
+              playsInline
+              width="300"
+              height="200"
+              style={{ borderRadius: 10, border: peers[peerKey] ? "2px solid lime" : "2px solid gray" }}
+            />
+          </Grid>
           ))}
         </Grid>
 
