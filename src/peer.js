@@ -4,7 +4,8 @@ import Peer from "peerjs";
 
 export const createPeer = () => {
   return new Peer(undefined, {
-    host: "/",
-    port: 9000,
+    host: "0.peerjs.com",
+    port: 443,
+    secure: true
   });
 };
