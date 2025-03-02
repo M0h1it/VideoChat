@@ -12,18 +12,18 @@ const PORT = process.env.PORT || 5000;
 
 // Enable CORS (Allow frontend domain)
 app.use(cors({
-  origin: "https://video-chat-theta-self.vercel.app", // Change to your frontend domain
+  origin: "*",
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
 
-// Initialize Socket.io with proper CORS settings
+// Initialize Socket.io with WebSocket and Polling Fallback
 const io = new Server(server, {
   cors: {
-    origin: "https://video-chat-theta-self.vercel.app", // Change to your frontend domain
+    origin: "*", // Use specific domain for security
     methods: ["GET", "POST"],
   },
-  transports: ["websocket", "polling"] // Ensures WebSocket and polling work together
+  transports: ["websocket", "polling"], // Ensure WebSocket is used
 });
 
 // Store online users
@@ -54,14 +54,14 @@ io.on("connection", (socket) => {
   });
 });
 
-// PeerJS Server with additional security settings
+// PeerJS Server
 const peerServer = ExpressPeerServer(server, {
   debug: true,
   path: "/", // Explicit PeerJS path
-  allow_discovery: true, // Allows other users to discover peers
+  allow_discovery: true,
 });
 
 app.use("/peerjs", peerServer);
 
-// Start server with dynamic port
+// Start server
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

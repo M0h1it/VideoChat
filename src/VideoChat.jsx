@@ -3,7 +3,10 @@ import { createPeer } from "./peer";
 import io from "socket.io-client";
 import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui/material";
 
-const socket = io("https://videochat-yq4y.onrender.com");
+const socket = io("https://videochat-yq4y.onrender.com", {
+  transports: ["polling", "websocket"], // Force polling first
+});
+
 
 const VideoChat = () => {
   const [peerId, setPeerId] = useState("");
