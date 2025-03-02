@@ -43,8 +43,8 @@ const VideoChat = () => {
         if (result.isConfirmed) {
           navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             localStreamRef.current = stream;
-            incomingCall.answer(stream);
             localVideoRef.current.srcObject = stream;
+            incomingCall.answer(stream);
 
             incomingCall.on("stream", (remoteStream) => {
               remoteVideoRef.current.srcObject = remoteStream;
@@ -113,8 +113,20 @@ const VideoChat = () => {
       call.close();
       setCall(null);
       setIsConnected(false);
-      localVideoRef.current.srcObject = null;
-      remoteVideoRef.current.srcObject = null;
+
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => track.stop()); // Stop all local tracks
+        localStreamRef.current = null;
+      }
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = null;
+      }
+
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = null;
+      }
+
       Swal.fire("Call Ended", "The call has been successfully ended.", "info");
     }
   };
