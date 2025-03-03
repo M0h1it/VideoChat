@@ -5,7 +5,7 @@ import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui
 
 // Use WebSocket for socket connection
 const socket = io("https://videochat-yq4y.onrender.com", {
-  transports: ["websocket"],
+  transports: ["websocket","polling"],
 });
 
 const VideoChat = () => {
