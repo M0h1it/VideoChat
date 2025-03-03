@@ -102,6 +102,12 @@ const VideoChat = () => {
     }
   };
 
+  const copyPeerId = () => {
+    if (!peerId) return;
+    navigator.clipboard.writeText(peerId);
+    alert("Peer ID copied to clipboard!");
+  };
+
   return (
     <Container maxWidth="md" sx={{ textAlign: "center", mt: 4 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
@@ -113,7 +119,17 @@ const VideoChat = () => {
         </Typography>
 
         <Box mt={2}>
-          <Typography>Your Peer ID: <strong>{peerId}</strong></Typography>
+        <Typography variant="subtitle1">
+          My ID: <strong>{peerId}</strong>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={copyPeerId}
+            sx={{ ml: 2 }}
+          >
+            Copy
+          </Button>
+        </Typography>
           <TextField
             label="Enter Peer ID to Call"
             variant="outlined"
@@ -121,6 +137,7 @@ const VideoChat = () => {
             onChange={(e) => setRemotePeerId(e.target.value)}
             sx={{ mt: 2, width: "100%" }}
           />
+          
           <Button
             variant="contained"
             color="primary"
@@ -134,9 +151,11 @@ const VideoChat = () => {
 
         <Grid container spacing={2} justifyContent="center" mt={3}>
           <Grid item>
+          <h3>User 1</h3>
             <video ref={localVideoRef} autoPlay playsInline muted width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
           </Grid>
           <Grid item>
+          <h3>User 2</h3>
             <video ref={remoteVideoRef} autoPlay playsInline width="300" height="200" style={{ borderRadius: 10, border: "2px solid #3f51b5" }} />
           </Grid>
         </Grid>
@@ -144,10 +163,10 @@ const VideoChat = () => {
         {isConnected && (
           <Box mt={2}>
             <Button variant="contained" color={isMuted ? "secondary" : "success"} onClick={toggleMute} sx={{ mr: 2 }}>
-              {isMuted ? "Unmute" : "Mute"}
+              {isMuted ? "Mute" : "Unmute"}
             </Button>
             <Button variant="contained" color={isVideoOff ? "secondary" : "success"} onClick={toggleVideo} sx={{ mr: 2 }}>
-              {isVideoOff ? "Turn Video On" : "Turn Video Off"}
+              {isVideoOff ? "Turn Video off" : "Turn Video on"}
             </Button>
             <Button variant="contained" color="error" onClick={endCall}>
               End Call
