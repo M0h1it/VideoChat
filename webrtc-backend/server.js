@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS (Allow frontend domain)
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 
 // Initialize Socket.io with proper CORS settings
 const io = new Server(server, {
