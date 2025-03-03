@@ -15,8 +15,8 @@ const VideoChat = () => {
   const [call, setCall] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isVideoOff, setIsVideoOff] = useState(true);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -163,10 +163,10 @@ const VideoChat = () => {
         {isConnected && (
           <Box mt={2}>
             <Button variant="contained" color={isMuted ? "secondary" : "success"} onClick={toggleMute} sx={{ mr: 2 }}>
-              {isMuted ? "Mute" : "Unmute"}
+            {isMuted ? "Mute" : "Unmute"}
             </Button>
             <Button variant="contained" color={isVideoOff ? "secondary" : "success"} onClick={toggleVideo} sx={{ mr: 2 }}>
-              {isVideoOff ? "Turn Video off" : "Turn Video on"}
+            {isVideoOff ? "Turn Video off" : "Turn Video on"}
             </Button>
             <Button variant="contained" color="error" onClick={endCall}>
               End Call
