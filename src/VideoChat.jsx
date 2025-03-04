@@ -8,11 +8,10 @@ import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui
 //   transports: ["websocket","polling"],
 // });
 
-const socket = io("wss://videochat-yq4y.onrender.com", {
-  transports: ["websocket" ,"polling"], // Force WebSocket transport
-  reconnection: true, // Allow reconnections
-  reconnectionAttempts: 5, // Retry up to 5 times
+const socket = io("ws://videochat-yq4y.onrender.com", {
+  transports: ["websocket","polling"],
 });
+
 
 
 const VideoChat = () => {
