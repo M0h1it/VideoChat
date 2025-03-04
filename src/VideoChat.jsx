@@ -4,15 +4,9 @@ import io from "socket.io-client";
 import { Button, TextField, Typography, Container, Box, Grid, Paper } from "@mui/material";
 
 // Use WebSocket for socket connection
-// const socket = io("https://videochat-yq4y.onrender.com", {
-//   transports: ["websocket","polling"],
-// });
-
-const socket = io("ws://videochat-yq4y.onrender.com", {
+const socket = io("https://videochat-yq4y.onrender.com", {
   transports: ["websocket","polling"],
 });
-
-
 
 const VideoChat = () => {
   const [peerId, setPeerId] = useState("");
