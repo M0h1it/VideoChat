@@ -1,112 +1,128 @@
 # 🎥 VideoChat
 
-A real-time **Video Chat Application** built using modern web technologies, enabling users to connect instantly through secure peer-to-peer video communication. The project demonstrates real-time networking concepts, media streaming, and responsive frontend development.
+A real-time **Video Chat Application** built with **React** and **WebRTC**, enabling users to connect instantly through peer-to-peer video communication. The project demonstrates real-time networking concepts, media streaming, and responsive frontend development.
 
-> **Live Demo: https://video-chat-pv5ea1sak-m0h1its-projects.vercel.app/**
+> **Live Demo:** https://video-chat-pv5ea1sak-m0h1its-projects.vercel.app/
 
 ---
 
 ## 📖 Overview
 
-VideoChat is a web-based application that allows users to create or join video call sessions and communicate seamlessly in real time. It showcases the implementation of real-time communication technologies and provides a simple, intuitive interface for online meetings.
+VideoChat lets users start a video call by sharing their **Peer ID** and connect seamlessly in real time. Each user is assigned a unique Peer ID on load; to call someone, you enter their ID and the call connects directly, browser-to-browser. It showcases WebRTC peer connections (via PeerJS) with a Socket.io signaling server, wrapped in a clean Material UI interface.
 
 ---
 
 ## ✨ Features
 
 * 📹 Real-time video calling
-* 🎤 Audio communication
-* 👥 Create and join meeting rooms
-* ⚡ Fast peer-to-peer connection
-* 📱 Responsive user interface
-* 🔒 Secure communication
-* 🌐 Cross-browser support
-* 🎨 Clean and modern design
+* 🎤 Audio communication (mute / unmute)
+* 🎥 Toggle camera on / off
+* 🔗 Connect by sharing a unique Peer ID
+* 👥 Live online-users awareness via Socket.io
+* ⚡ Direct peer-to-peer media (low latency)
+* 📱 Responsive Material UI interface
+* 🔒 Encrypted media by default (WebRTC/DTLS-SRTP)
 
 ---
 
 ## 🛠️ Technologies Used
 
-* HTML5
-* CSS3
-* JavaScript (ES6)
-* WebRTC
-* Socket.io
+**Frontend**
+* React 19
+* Vite
+* PeerJS (WebRTC peer connections)
+* Socket.io Client (signaling)
+* Material UI (MUI) + Emotion
+* SweetAlert2
+
+**Backend** (`webrtc-backend/`)
 * Node.js
 * Express.js
-
-> Remove any technologies above that are not part of your implementation.
+* Socket.io
+* `peer` (ExpressPeerServer)
 
 ---
 
 ## 📁 Project Structure
 
-```text
+```
 VideoChat/
 │
+├── index.html                # Vite entry HTML
+├── vite.config.js
+├── eslint.config.js
+├── package.json              # frontend (React + Vite)
 ├── public/
-│   ├── css/
-│   ├── js/
+│   └── vite.svg
+├── src/
+│   ├── main.jsx              # React entry
+│   ├── App.jsx / App.css
+│   ├── VideoChat.jsx         # main video-chat component (calls, streams, UI)
+│   ├── peer.js               # PeerJS client setup
+│   ├── index.css
 │   └── assets/
 │
-├── server.js
-├── package.json
-├── index.html
-└── README.md
+└── webrtc-backend/           # separate Node backend
+    ├── server.js             # Express + Socket.io + PeerJS server
+    └── package.json
 ```
-
-> Update the structure to match your repository if necessary.
 
 ---
 
 ## 🚀 Getting Started
 
-### Clone the repository
+This is a two-part project: a **React frontend** (repo root) and a **Node backend** (`webrtc-backend/`).
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/M0h1it/VideoChat.git
-```
-
-### Navigate to the project
-
-```bash
 cd VideoChat
 ```
 
-### Install dependencies
+### 2. Start the backend
+
+```bash
+cd webrtc-backend
+npm install
+npm start            # runs on http://localhost:5000  (npm run dev for auto-restart)
+```
+
+### 3. Start the frontend (in a second terminal)
 
 ```bash
 npm install
+npm run dev          # Vite dev server, http://localhost:5173
 ```
 
-### Start the application
+Open **http://localhost:5173** in your browser.
 
-```bash
-npm start
-```
+> **Note on configuration:** the connection URLs are currently hardcoded.
+> `src/VideoChat.jsx` points the Socket.io client at the deployed backend
+> (`wss://videochat-yq4y.onrender.com`), and `src/peer.js` uses the public
+> PeerJS cloud (`0.peerjs.com`). To run fully against your **local** backend,
+> update those URLs to your local server (e.g. `http://localhost:5000`) and
+> point PeerJS at the bundled `/peerjs` server.
 
-Open your browser and visit:
+### How to make a call
 
-```text
-http://localhost:3000
-```
-
-*(Update the port if your project uses a different one.)*
+1. Open the app in two browser tabs/devices — each shows its own **Peer ID**.
+2. Copy one tab's Peer ID into the other tab's "remote ID" field and start the call.
+3. Allow camera/microphone access when prompted.
 
 ---
 
 ## 🎯 Learning Objectives
 
-This project helped me gain hands-on experience with:
+This project gave me hands-on experience with:
 
-* Real-time communication
-* WebRTC fundamentals
-* Socket-based messaging
-* Media device access (camera & microphone)
-* JavaScript asynchronous programming
-* DOM manipulation
-* Responsive web development
-* Client-server architecture
+* WebRTC fundamentals and peer-to-peer media
+* PeerJS for managing peer connections
+* Socket.io-based signaling and presence
+* Accessing media devices (camera & microphone)
+* React hooks, refs, and asynchronous flows
+* Building UIs with Material UI
+* Client–server architecture and deployment (Vercel + Render)
 
 ---
 
@@ -117,6 +133,7 @@ This project helped me gain hands-on experience with:
 * 📹 Video recording
 * 😊 Emoji reactions
 * 👥 Group video calls
+* 🏷️ Named rooms (instead of sharing raw Peer IDs)
 * 🔐 User authentication
 * 📱 Progressive Web App (PWA) support
 * 🌙 Dark mode
@@ -129,23 +146,17 @@ Contributions are welcome!
 
 1. Fork the repository
 2. Create a feature branch
-
-```bash
-git checkout -b feature-name
-```
-
+   ```bash
+   git checkout -b feature-name
+   ```
 3. Commit your changes
-
-```bash
-git commit -m "Add new feature"
-```
-
+   ```bash
+   git commit -m "Add new feature"
+   ```
 4. Push to your branch
-
-```bash
-git push origin feature-name
-```
-
+   ```bash
+   git push origin feature-name
+   ```
 5. Open a Pull Request
 
 ---
@@ -162,10 +173,10 @@ git push origin feature-name
 
 ## ⭐ Support
 
-If you found this project useful, consider giving it a **⭐ Star** on GitHub. Your support motivates me to build and share more open-source projects.
+If you found this project useful, consider giving it a ⭐ on GitHub. Your support motivates me to build and share more open-source projects.
 
 ---
 
 ## 📄 License
 
-This project is open-source and intended for **learning, experimentation, and educational purposes**.
+This project is open-source and intended for learning, experimentation, and educational purposes.
